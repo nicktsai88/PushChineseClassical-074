@@ -1,0 +1,1151 @@
+<!DOCTYPE html>
+<html lang="zh-Hant">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>(推與敲) 第74篇 澆灌竹木 - 互動式古文學習 (GitHub版)</title>
+    <!-- 載入 Tailwind CSS -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    <!-- 載入 Marked.js -->
+    <script src="https://cdn.jsdelivr.net/npm/marked/marked.min.js"></script>
+    <!-- 載入 FontAwesome 圖標 -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <!-- 載入 Canvas Confetti -->
+    <script src="https://cdn.jsdelivr.net/npm/canvas-confetti@1.6.0/dist/confetti.browser.min.js"></script>
+    
+    <style>
+        @import url('https://fonts.googleapis.com/css2?family=Noto+Serif+TC:wght@400;600;700&family=Noto+Sans+TC:wght@300;400;500;700&display=swap');
+
+        body {
+            font-family: 'Noto Sans TC', sans-serif;
+            background-color: #fdfbf7; /* 米紙色 */
+            background-image: radial-gradient(#e5e7eb 1px, transparent 1px);
+            background-size: 20px 20px;
+        }
+
+        .font-serif {
+            font-family: 'Noto Serif TC', serif;
+        }
+
+        /* 自定義滾動條 */
+        ::-webkit-scrollbar {
+            width: 8px;
+        }
+        ::-webkit-scrollbar-track {
+            background: #f1f1f1; 
+        }
+        ::-webkit-scrollbar-thumb {
+            background: #d97706; 
+            border-radius: 4px;
+        }
+
+        /* 標籤樣式 */
+        .tab-btn {
+            position: relative;
+            transition: all 0.3s ease;
+            white-space: nowrap;
+        }
+        .tab-btn::after {
+            content: '';
+            position: absolute;
+            bottom: 0;
+            left: 0;
+            width: 0%;
+            height: 3px;
+            background-color: #b45309;
+            transition: width 0.3s ease;
+        }
+        .tab-btn.active {
+            color: #92400e;
+            background-color: #fffbeb;
+        }
+        .tab-btn.active::after {
+            width: 100%;
+        }
+
+        /* 互動文字樣式 */
+        .interactive-word {
+            cursor: pointer;
+            border-bottom: 2px dotted #d97706;
+            transition: all 0.2s;
+            padding-bottom: 1px;
+            position: relative;
+            z-index: 20;
+            color: #92400e;
+            font-weight: 500;
+        }
+        .interactive-word:hover {
+            background-color: #fef3c7;
+            color: #b45309;
+            border-bottom-style: solid;
+        }
+
+        /* 彈出註釋 */
+        .note-popup {
+            animation: fadeIn 0.2s ease-out;
+            box-shadow: 0 10px 25px -5px rgba(0, 0, 0, 0.1), 0 8px 10px -6px rgba(0, 0, 0, 0.1);
+        }
+
+        @keyframes fadeIn {
+            from { opacity: 0; transform: translateY(10px) translateX(-50%); }
+            to { opacity: 1; transform: translateY(0) translateX(-50%); }
+        }
+
+        /* 懸停翻譯效果 */
+        .hover-trans-container:hover .hover-translation {
+            display: block;
+            animation: slideUp 0.3s ease-out;
+        }
+        @keyframes slideUp {
+            from { opacity: 0; transform: translateY(10px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+
+        /* 故事模式樣式 */
+        .story-choice:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1), 0 2px 4px -1px rgba(0, 0, 0, 0.06);
+        }
+        .fade-in-image {
+            animation: fadeInImg 0.8s ease-out forwards;
+        }
+        @keyframes fadeInImg {
+            from { opacity: 0; transform: scale(0.95); }
+            to { opacity: 1; transform: scale(1); }
+        }
+
+        /* 聊天氣泡 */
+        .chat-bubble {
+            max-width: 85%;
+            border-radius: 1rem;
+            padding: 0.75rem 1rem;
+            margin-bottom: 1rem;
+            position: relative;
+            line-height: 1.6;
+        }
+        .chat-user {
+            background-color: #dbeafe;
+            color: #1e40af;
+            align-self: flex-end;
+            border-bottom-right-radius: 0.25rem;
+        }
+        .chat-ai {
+            background-color: #fff;
+            border: 1px solid #e5e7eb;
+            color: #374151;
+            align-self: flex-start;
+            border-bottom-left-radius: 0.25rem;
+        }
+        
+        /* 禁用狀態的樣式 */
+        input[type="radio"]:disabled {
+            cursor: not-allowed;
+            opacity: 0.6;
+        }
+        .disabled-label {
+            cursor: not-allowed !important;
+            opacity: 0.7;
+        }
+    </style>
+</head>
+<body class="text-gray-800 min-h-screen flex flex-col">
+
+    <!-- 頂部導航欄 -->
+    <nav class="bg-amber-800 text-amber-50 shadow-lg sticky top-0 z-50">
+        <div class="max-w-5xl mx-auto px-4 sm:px-6 lg:px-8">
+            <div class="flex items-center justify-between h-16">
+                <div class="flex items-center">
+                    <i class="fas fa-book-open text-2xl mr-3"></i>
+                    <span class="font-bold text-xl tracking-wider">古文互動教室</span>
+                </div>
+                <div class="hidden md:block text-sm opacity-80">
+                    GitHub Pages 版
+                </div>
+            </div>
+        </div>
+    </nav>
+
+    <div id="app" class="max-w-5xl mx-auto p-4 sm:p-6 w-full flex-grow flex flex-col">
+        
+        <!-- 課程標題卡片 -->
+        <header class="bg-white rounded-2xl shadow-md overflow-hidden mb-6 border border-amber-100">
+            <div class="bg-gradient-to-r from-amber-100 to-orange-50 p-6 sm:p-8">
+                <div class="flex flex-col md:flex-row justify-between items-start md:items-center gap-4">
+                    <div>
+                        <h1 id="main-title" class="text-3xl sm:text-4xl font-serif font-bold text-amber-900 mb-2"></h1>
+                        <div class="flex items-center text-amber-700 space-x-4">
+                            <span class="flex items-center"><i class="fas fa-user-edit mr-2"></i><span id="author-name"></span></span>
+                            <span class="flex items-center"><i class="fas fa-scroll mr-2"></i><span id="source-name"></span></span>
+                        </div>
+                    </div>
+                    <div class="hidden md:block">
+                        <span class="inline-block bg-amber-200 text-amber-900 text-xs px-3 py-1 rounded-full font-bold uppercase tracking-wide">國中語文</span>
+                    </div>
+                </div>
+            </div>
+        </header>
+
+        <!-- 功能標籤 -->
+        <div class="flex flex-wrap justify-center bg-white rounded-xl shadow-sm mb-6 border border-gray-100 sticky top-20 z-40">
+            <button id="tab-overview" class="tab-btn active px-4 py-3 md:px-6 md:py-4 font-medium text-gray-600 hover:text-amber-700" onclick="switchTab('overview')">
+                <i class="fas fa-info-circle mr-2"></i>故事總覽
+            </button>
+            <button id="tab-reading" class="tab-btn px-4 py-3 md:px-6 md:py-4 font-medium text-gray-600 hover:text-amber-700" onclick="switchTab('reading')">
+                <i class="fas fa-glasses mr-2"></i>精讀與圖解
+            </button>
+            <button id="tab-deep" class="tab-btn px-4 py-3 md:px-6 md:py-4 font-medium text-gray-600 hover:text-amber-700" onclick="switchTab('deep')">
+                <i class="fas fa-project-diagram mr-2"></i>深度理解與地圖
+            </button>
+            <button id="tab-story" class="tab-btn px-4 py-3 md:px-6 md:py-4 font-medium text-gray-600 hover:text-amber-700" onclick="switchTab('story')">
+                <i class="fas fa-theater-masks mr-2"></i>抉擇之路(RPG)
+            </button>
+            <button id="tab-vocabulary" class="tab-btn px-4 py-3 md:px-6 md:py-4 font-medium text-gray-600 hover:text-amber-700" onclick="switchTab('vocabulary')">
+                <i class="fas fa-spell-check mr-2"></i>語詞精解
+            </button>
+            <button id="tab-analysis" class="tab-btn px-4 py-3 md:px-6 md:py-4 font-medium text-gray-600 hover:text-amber-700" onclick="switchTab('analysis')">
+                <i class="fas fa-feather-alt mr-2"></i>文義與修辭
+            </button>
+            <button id="tab-chat" class="tab-btn px-4 py-3 md:px-6 md:py-4 font-medium text-gray-600 hover:text-amber-700" onclick="switchTab('chat')">
+                <i class="fas fa-robot mr-2"></i>AI 角色扮演
+            </button>
+            <button id="tab-quiz" class="tab-btn px-4 py-3 md:px-6 md:py-4 font-medium text-gray-600 hover:text-amber-700" onclick="switchTab('quiz')">
+                <i class="fas fa-pen-nib mr-2"></i>隨堂測驗
+            </button>
+        </div>
+
+        <!-- 主要內容區 -->
+        <main id="content-display" class="flex-grow bg-white rounded-2xl shadow-lg p-6 sm:p-8 min-h-[500px] transition-all duration-300 relative">
+            <!-- 內容動態載入 -->
+        </main>
+        <!-- Tooltip container -->
+        <div id="svg-tooltip" class="tooltip"></div>
+
+    </div>
+
+    <!-- 註釋彈出框模板 -->
+    <div id="note-template" class="note-popup absolute bg-white border-l-4 border-amber-500 rounded-r-lg shadow-2xl p-4 z-50 hidden w-64" onclick="event.stopPropagation()">
+        <!-- 關閉按鈕 -->
+        <button onclick="closeNote()" class="absolute top-2 right-2 text-gray-400 hover:text-amber-600 transition">
+            <i class="fas fa-times"></i>
+        </button>
+        <div id="note-content">
+            <!-- 內容動態填充 -->
+        </div>
+    </div>
+
+    <!-- 結果模態框 (Score Modal) -->
+    <div id="score-modal" class="fixed inset-0 bg-black bg-opacity-50 z-50 hidden flex items-center justify-center">
+        <div class="bg-white rounded-2xl p-8 max-w-sm w-full mx-4 shadow-2xl transform transition-all scale-100">
+            <div class="text-center">
+                <div class="mx-auto flex items-center justify-center h-16 w-16 rounded-full bg-amber-100 mb-4">
+                    <i class="fas fa-trophy text-2xl text-amber-600"></i>
+                </div>
+                <h3 class="text-2xl font-bold text-gray-900 mb-2">測驗結果</h3>
+                <p class="text-gray-500 mb-6" id="score-text">你的得分是...</p>
+                <button onclick="closeScoreModal()" class="w-full inline-flex justify-center rounded-md border border-transparent shadow-sm px-4 py-2 bg-amber-600 text-base font-medium text-white hover:bg-amber-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-amber-500 sm:text-sm">
+                    查看詳細解析
+                </button>
+            </div>
+        </div>
+    </div>
+
+    <!-- 錯誤提示 -->
+    <div id="error-toast" class="fixed bottom-6 right-6 bg-red-50 border border-red-200 text-red-600 px-6 py-4 rounded-lg shadow-xl hidden z-50 flex items-center transition-all transform translate-y-10 opacity-0">
+        <i class="fas fa-exclamation-circle mr-3 text-xl"></i>
+        <div>
+            <p class="font-bold">發生錯誤</p>
+            <p id="error-msg" class="text-sm"></p>
+        </div>
+    </div>
+
+    <script>
+        const apiKey = ""; // API Key 由環境自動注入
+        
+        // ----------------------------------------------------
+        // 1. 教材資料結構 (Content Data) - 澆灌竹木
+        // ----------------------------------------------------
+        const contentData = {
+            metadata: {
+                title: "(推與敲) 第74篇 澆灌竹木",
+                author: "李漁 (李笠翁)",
+                source: "《閒情偶寄》"
+            },
+            summary: "本文選自清代戲曲家、文學家李漁的《閒情偶寄》。作者在文中闡述了園藝種植的樂趣與哲學。他主張在園中種植蔬果，既方便照顧又容易收成。關於澆水，他引用「抱甕」與「機械」的典故，主張取中庸之道，不必太過勞累也不必太過機巧。更重要的是，作者認為必須對草木有感情，關心其生死，才能真正體會灌溉的樂趣。他更進一步將草木的榮枯與家庭的氣運（風水）聯繫起來，認為勤於灌溉不僅是為了植物，更是為了頤養性情和興旺家運。",
+            
+            meaning: "本文核心在於「物我合一」的生活美學與「勤能補拙」的修身之道。1. **生活情趣**：在平凡的澆灌勞動中發現樂趣（樂在其中）。2. **中庸之道**：在勞力與巧智之間取得平衡（從中酌取灌園方）。3. **生命共感**：將植物視為有生命的存在，與之同喜同悲（以草木之生死為生死）。4. **天人感應**：認為環境的生機（氣之旺）與人的運勢（生財、退運）息息相關，強調人為努力（汲水澆花）可以改善環境氣場。",
+            
+            rhetoric: [
+                "**引用 (Allusion):** 「抱甕太癡機太巧」引用了《莊子》中子貢與漢陰丈人的典故，對比了原始質樸與機械機巧兩種極端。",
+                "**映襯 (Contrast):** 「草木欣欣向榮」與「群生不遂」對比；「生財之地」與「退運之家」對比，凸顯植物生機對家運的重要性。",
+                "**設問 (Rhetorical Question):** 「不見生財之地萬物皆榮；退運之家群生不遂？」雖是問句，實則肯定了氣運與環境的關係。",
+                "**譬喻 (Metaphor):** 將「汲水澆花」比作「聽信堪輿、修門改向」，強調人為努力改善環境的效果如同風水調理。",
+                "**頂真 (Anadiplosis):** 雖不明顯，但邏輯上環環相扣：草木榮->氣旺->家運興。"
+            ],
+            
+            // 36個詳盡語詞精解
+            vocabulary: [
+                { word: "築", zhuyin: "ㄓㄨˊ", pos: "動詞", meaning: "建造、修蓋。" },
+                { word: "小圃", zhuyin: "ㄒㄧㄠˇ ㄆㄨˇ", pos: "名詞", meaning: "種植蔬菜花草的小園地。" },
+                { word: "方塘", zhuyin: "ㄈㄤ ㄊㄤˊ", pos: "名詞", meaning: "方形的水池。" },
+                { word: "易", zhuyin: "ㄧˋ", pos: "形容詞", meaning: "容易。" },
+                { word: "生成", zhuyin: "ㄕㄥ ㄔㄥˊ", pos: "動詞", meaning: "生長成熟。" },
+                { word: "抱甕", zhuyin: "ㄅㄠˋ ㄨㄥˋ", pos: "動詞片語", meaning: "抱著水甕取水灌溉。比喻方法笨拙費力。典出《莊子》。" },
+                { word: "甕", zhuyin: "ㄨㄥˋ", pos: "名詞", meaning: "汲水或盛物的陶器。" },
+                { word: "癡", zhuyin: "ㄔ", pos: "形容詞", meaning: "笨拙、傻氣。" },
+                { word: "機", zhuyin: "ㄐㄧ", pos: "名詞", meaning: "機械、機巧之心。指使用桔槔等機械取水。" },
+                { word: "巧", zhuyin: "ㄑㄧㄠˇ", pos: "形容詞", meaning: "靈巧、取巧。" },
+                { word: "酌取", zhuyin: "ㄓㄨㄛˊ ㄑㄩˇ", pos: "動詞", meaning: "斟酌採取、選取（適當的方法）。" },
+                { word: "灌園", zhuyin: "ㄍㄨㄢˋ ㄩㄢˊ", pos: "動詞片語", meaning: "澆灌園圃。" },
+                { word: "方", zhuyin: "ㄈㄤ", pos: "名詞", meaning: "方法。" },
+                { word: "山居", zhuyin: "ㄕㄢ ㄐㄩ", pos: "名詞/動詞", meaning: "居住在山中；山中的住所。" },
+                { word: "行樂", zhuyin: "ㄒㄧㄥˊ ㄌㄜˋ", pos: "動詞", meaning: "尋求快樂、享受生活。" },
+                { word: "生死", zhuyin: "ㄕㄥ ㄙˇ", pos: "名詞", meaning: "生存與死亡，此指極為重視、關心。" },
+                { word: "畏途", zhuyin: "ㄨㄟˋ ㄊㄨˊ", pos: "名詞", meaning: "危險可怕的路途。此指視為畏懼、不想做的事。" },
+                { word: "欣欣向榮", zhuyin: "ㄒㄧㄣ ㄒㄧㄣ ㄒㄧㄤˋ ㄖㄨㄥˊ", pos: "成語", meaning: "草木茂盛，生機勃勃的樣子。" },
+                { word: "非止", zhuyin: "ㄈㄟ ㄓˇ", pos: "連詞", meaning: "不僅、不只。" },
+                { word: "堪", zhuyin: "ㄎㄢ", pos: "助動詞", meaning: "可以、能夠。" },
+                { word: "娛", zhuyin: "ㄩˊ", pos: "動詞", meaning: "使...快樂。" },
+                { word: "藝", zhuyin: "ㄧˋ", pos: "動詞", meaning: "種植。" },
+                { word: "祥光", zhuyin: "ㄒㄧㄤˊ ㄍㄨㄤ", pos: "名詞", meaning: "吉祥的光氣。" },
+                { word: "瑞氣", zhuyin: "ㄖㄨㄟˋ ㄑㄧˋ", pos: "名詞", meaning: "吉祥之氣。" },
+                { word: "生財", zhuyin: "ㄕㄥ ㄘㄞˊ", pos: "動詞片語", meaning: "產生財富、興旺發達。" },
+                { word: "退運", zhuyin: "ㄊㄨㄟˋ ㄩㄣˋ", pos: "名詞", meaning: "衰退的運勢。" },
+                { word: "遂", zhuyin: "ㄙㄨㄟˋ", pos: "動詞", meaning: "順利生長、成功。" },
+                { word: "氣", zhuyin: "ㄑㄧˋ", pos: "名詞", meaning: "氣數、運勢、生機。" },
+                { word: "驗", zhuyin: "ㄧㄢˋ", pos: "動詞", meaning: "驗證、察看。" },
+                { word: "汲水", zhuyin: "ㄐㄧˊ ㄕㄨㄟˇ", pos: "動詞片語", meaning: "從井裡取水。" },
+                { word: "堪輿", zhuyin: "ㄎㄢ ㄩˊ", pos: "名詞", meaning: "風水學。堪為天，輿為地。" },
+                { word: "督率", zhuyin: "ㄉㄨ ㄕㄨㄞˋ", pos: "動詞", meaning: "督促率領。" },
+                { word: "以身任", zhuyin: "ㄧˇ ㄕㄣ ㄖㄣˋ", pos: "動詞片語", meaning: "親身擔任、親自去做。" },
+                { word: "微勤", zhuyin: "ㄨㄟ ㄑㄧㄣˊ", pos: "名詞", meaning: "輕微的勞動。" },
+                { word: "節", zhuyin: "ㄐㄧㄝˊ", pos: "動詞", meaning: "調節、控制。" },
+                { word: "頤養", zhuyin: "ㄧˊ ㄧㄤˇ", pos: "動詞", meaning: "保養、修養。" }
+            ],
+
+            segments: [
+                {
+                    original: "「築成小圃近方塘，果易生成菜易長。抱甕太癡機太巧，從中酌取灌園方。」此予山居行樂之詩也。",
+                    translation: "「在靠近方塘的地方開闢一個小菜園，這樣瓜果容易生長，蔬菜也容易長大。用手抱甕澆水太笨拙，用機械澆水又太取巧，我從這兩者中間斟酌選取適合的灌溉方法。」這是我在山中居住時寫的一首行樂詩。",
+                    audioText: "築成小圃近方塘，果易生成菜易長。抱甕太癡機太巧，從中酌取灌園方。此予山居行樂之詩也。",
+                    notes: {
+                        "小圃": { zhuyin: "ㄒㄧㄠˇ ㄆㄨˇ", type: "名詞", def: "小菜園。" },
+                        "方塘": { zhuyin: "ㄈㄤ ㄊㄤˊ", type: "名詞", def: "水池。" },
+                        "抱甕": { zhuyin: "ㄅㄠˋ ㄨㄥˋ", type: "典故", def: "徒手運水，喻笨拙。" }
+                    },
+                    // Modified image path for GitHub Pages
+                    imageData: "images/reading_segment_1.jpg"
+                },
+                {
+                    original: "能以草木之生死為生死，始可與言灌園之樂，不則一灌再灌之後，無不畏途視之矣。",
+                    translation: "能夠把草木的生死看作自己的生死一樣關心，才配跟他談論灌溉園圃的樂趣；否則，在一次又一次重複的澆灌勞動後，沒有人不把它視為畏途（可怕的苦差事）的。",
+                    audioText: "能以草木之生死為生死，始可與言灌園之樂，不則一灌再灌之後，無不畏途視之矣。",
+                    notes: {
+                        "生死": { zhuyin: "ㄕㄥ ㄙˇ", type: "名詞", def: "在此指極度關心。" },
+                        "畏途": { zhuyin: "ㄨㄟˋ ㄊㄨˊ", type: "名詞", def: "視為危險困難的事。" }
+                    },
+                    imageData: "images/reading_segment_2.jpg"
+                },
+                {
+                    original: "殊不知草木欣欣向榮，非止耳目堪娛，亦可為藝草植木之家，助祥光而生瑞氣。",
+                    translation: "卻不知道草木生長得茂盛繁榮，不僅只是讓耳朵眼睛感到愉悅，也可以為種植花草樹木的人家，助長吉祥的光彩並產生祥瑞之氣。",
+                    audioText: "殊不知草木欣欣向榮，非止耳目堪娛，亦可為藝草植木之家，助祥光而生瑞氣。",
+                    notes: {
+                        "欣欣向榮": { zhuyin: "ㄒㄧㄣ ㄒㄧㄣ ㄒㄧㄤˋ ㄖㄨㄥˊ", type: "成語", def: "草木茂盛。" },
+                        "瑞氣": { zhuyin: "ㄖㄨㄟˋ ㄑㄧˋ", type: "名詞", def: "吉祥之氣。" }
+                    },
+                    imageData: "images/reading_segment_3.jpg"
+                },
+                {
+                    original: "不見生財之地萬物皆榮；退運之家群生不遂？氣之旺與不旺，皆於動、植驗之。",
+                    translation: "沒看見那些發財顯貴的地方，萬物都生長得榮耀茂盛；而運勢衰退的人家，各種生物都生長得不順利嗎？氣運的旺盛與否，都可以從動物和植物的生長情形驗證出來。",
+                    audioText: "不見生財之地萬物皆榮；退運之家群生不遂？氣之旺與不旺，皆於動、植驗之。",
+                    notes: {
+                        "退運": { zhuyin: "ㄊㄨㄟˋ ㄩㄣˋ", type: "名詞", def: "衰退的運勢。" },
+                        "不遂": { zhuyin: "ㄅㄨˊ ㄙㄨㄟˋ", type: "動詞", def: "生長不順。" }
+                    },
+                    imageData: "images/reading_segment_4.jpg"
+                },
+                {
+                    original: "若是，則汲水澆花，與聽信堪輿、修門改向者無異也。不視為苦，則樂在其中。",
+                    translation: "如果是這樣，那麼提水澆花，就跟聽信風水師的話、修整門戶改變方向（改風水）沒有什麼兩樣了。不把它看作是苦差事，就能樂在其中。",
+                    audioText: "若是，則汲水澆花，與聽信堪輿、修門改向者無異也。不視為苦，則樂在其中。",
+                    notes: {
+                        "堪輿": { zhuyin: "ㄎㄢ ㄩˊ", type: "名詞", def: "風水。" },
+                        "汲水": { zhuyin: "ㄐㄧˊ ㄕㄨㄟˇ", type: "動詞", def: "取水。" }
+                    },
+                    imageData: "images/reading_segment_5.jpg"
+                },
+                {
+                    original: "督率家人灌溉，而以身任微勤，節其勞逸，亦頤養性情之一助也。",
+                    translation: "督促帶領家人進行灌溉，自己也親身擔任一些輕微的勞動，調節勞動與休息的節奏，這也是保養身心、陶冶性情的一種助益啊。",
+                    audioText: "督率家人灌溉，而以身任微勤，節其勞逸，亦頤養性情之一助也。",
+                    notes: {
+                        "以身任": { zhuyin: "ㄧˇ ㄕㄣ ㄖㄣˋ", type: "動詞", def: "親自擔任。" },
+                        "頤養": { zhuyin: "ㄧˊ ㄧㄤˇ", type: "動詞", def: "保養。" }
+                    },
+                    imageData: "images/reading_segment_6.jpg"
+                }
+            ],
+            quiz: [
+                { q: "「抱甕太癡機太巧」典故出自哪本書？", opts: ["A. 論語", "B. 孟子", "C. 莊子", "D. 墨子"], ans: "C", exp: "出自《莊子·天地》，記載子貢與漢陰丈人的對話。" },
+                { q: "作者認為對待草木應抱持何種態度才能得「灌園之樂」？", opts: ["A. 視為生財工具", "B. 以草木之生死為生死（同理心）", "C. 為了鍛鍊身體", "D. 為了美化環境"], ans: "B", exp: "原文：「能以草木之生死為生死，始可與言灌園之樂」。" },
+                { q: "「畏途」在文中的意思是？", opts: ["A. 險峻的道路", "B. 令人害怕的苦差事", "C. 遙遠的路途", "D. 充滿野獸的路"], ans: "B", exp: "比喻將灌溉視為痛苦、不想做的事。" },
+                { q: "文中提到「草木欣欣向榮」除了耳目堪娛外，還有什麼功能？", opts: ["A. 可以賣錢", "B. 可以吃", "C. 助祥光而生瑞氣（改善風水）", "D. 吸引小鳥"], ans: "C", exp: "作者認為植物生長良好能帶來吉祥之氣。" },
+                { q: "「退運之家群生不遂」的「不遂」意思是？", opts: ["A. 不順利、生長不好", "B. 不聽話", "C. 不隨便", "D. 不睡覺"], ans: "A", exp: "遂，順利、成功。不遂指生長狀況不佳。" },
+                { q: "作者將「汲水澆花」比擬為什麼行為？", opts: ["A. 讀書寫字", "B. 聽信堪輿、修門改向（調整風水）", "C. 鍛鍊武藝", "D. 烹飪美食"], ans: "B", exp: "認為澆水讓植物茂盛，如同調整風水一樣能改善家運。" },
+                { q: "「堪輿」是指什麼？", opts: ["A. 地圖", "B. 車輛", "C. 風水", "D. 天氣"], ans: "C", exp: "堪天輿地，即風水學。" },
+                { q: "「以身任微勤」的「微勤」是指？", opts: ["A. 微薄的薪水", "B. 卑微的工作", "C. 輕微的勞動", "D. 稍微勤勞一點"], ans: "C", exp: "指不過度勞累的輕度勞動。" },
+                { q: "下列何者不是作者認為灌園的好處？", opts: ["A. 頤養性情", "B. 耳目堪娛", "C. 助祥光生瑞氣", "D. 獲取暴利"], ans: "D", exp: "文中未提及透過種植獲取暴利。" },
+                { q: "「從中酌取灌園方」展現了作者怎樣的處世哲學？", opts: ["A. 極端主義", "B. 中庸之道", "C. 無為而治", "D. 功利主義"], ans: "B", exp: "不偏向極端的「癡」或「巧」，取中間適合的方法。" },
+                { q: "「氣之旺與不旺，皆於動、植驗之」的「驗」意思是？", opts: ["A. 實驗", "B. 考驗", "C. 驗證、察看", "D. 靈驗"], ans: "C", exp: "從動植物的生長狀態來驗證氣運。" },
+                { q: "「頤養性情」的意思是？", opts: ["A. 讓性情變得暴躁", "B. 保養身心，陶冶性情", "C. 隱藏本性", "D. 放縱情感"], ans: "B", exp: "頤養，保養。" },
+                { q: "這篇文章的作者李漁是哪個朝代的人？", opts: ["A. 唐朝", "B. 宋朝", "C. 明朝", "D. 清朝"], ans: "D", exp: "李漁是明末清初的文學家。" },
+                { q: "「藝草植木」的「藝」字作動詞用，意思是？", opts: ["A. 藝術", "B. 才能", "C. 種植", "D. 極限"], ans: "C", exp: "藝，種植。" },
+                { q: "作者建議如何安排勞動？", opts: ["A. 拚命工作", "B. 完全不工作", "C. 節其勞逸（勞逸結合）", "D. 只叫家人做"], ans: "C", exp: "調節勞動與休息，不過勞也不過逸。" },
+                { q: "「殊不知」的意思是？", opts: ["A. 特殊", "B. 竟然不知道（表示轉折）", "C. 非常知道", "D. 死了不知道"], ans: "B", exp: "竟不知道，常用於提出反駁或新觀點。" },
+                { q: "「方塘」在詩中指的是？", opts: ["A. 方形的糖果", "B. 方形的池塘", "C. 姓方的人家", "D. 堤防"], ans: "B", exp: "指半畝方塘一鑑開的池塘。" },
+                { q: "作者認為如果對草木沒有感情，灌溉會變成？", opts: ["A. 快樂的事", "B. 賺錢的事", "C. 畏途（苦差事）", "D. 沒感覺"], ans: "C", exp: "會覺得厭煩、可怕。" },
+                { q: "「督率」的意思是？", opts: ["A. 監督率領", "B. 督察效率", "C. 獨自率先", "D. 隨便看看"], ans: "A", exp: "帶領家人一起做。" },
+                { q: "這篇文章選自李漁的哪部著作？", opts: ["A. 隨園詩話", "B. 閒情偶寄", "C. 浮生六記", "D. 陶庵夢憶"], ans: "B", exp: "《閒情偶寄》。" }
+            ]
+        };
+
+        // 預處理所有關鍵字
+        const allKeywords = {};
+        contentData.segments.forEach((seg, idx) => {
+            Object.entries(seg.notes).forEach(([key, note]) => {
+                if (!allKeywords[key]) {
+                    allKeywords[key] = { ...note, segIdx: idx };
+                }
+            });
+        });
+
+        // ----------------------------------------------------
+        // 2. 全域狀態管理
+        // ----------------------------------------------------
+        let currentTab = 'overview';
+        let chatHistory = [];
+        let isGeneratingImage = false;
+        let currentAudio = null;
+        let currentPersona = 'bookboy'; 
+        let hasPreloadedStory = false;
+        let userAnswers = {}; 
+
+        const personas = {
+            bookboy: {
+                name: "AI 書僮",
+                icon: "fas fa-user-graduate",
+                color: "blue",
+                intro: "少爺/小姐好！李漁先生這篇談種花種菜的文章，其實藏著很深的人生哲學喔。讓我們一起來發掘吧！",
+                systemPrompt: "你是一位幽默、博學的古代書僮，正在指導國中生閱讀《澆灌竹木》。請用輕鬆、鼓勵的語氣回答，多舉園藝或生活的例子。"
+            },
+            liyu: {
+                name: "李漁 (李笠翁)",
+                icon: "fas fa-leaf",
+                color: "green",
+                intro: "老夫生平無他愛，唯愛草木與戲曲。這園子裡的生意盎然，便是我心中最大的快樂。你懂這份樂趣嗎？",
+                systemPrompt: "你現在扮演清代生活美學家李漁。你說話風趣雅致，講究生活情趣，喜歡用草木比喻人生。請用第一人稱「老夫」或「笠翁」回答。"
+            },
+            gardener: {
+                name: "老園丁",
+                icon: "fas fa-seedling",
+                color: "amber",
+                intro: "嘿！別看這澆水簡單，學問大著呢！水多了爛根，水少了枯葉。就像做人，過猶不及啊！",
+                systemPrompt: "你現在扮演一位經驗豐富的老園丁。你說話直白樸實，充滿實踐經驗，認為理論不如動手做。請用第一人稱「俺」回答。"
+            },
+            master: {
+                name: "風水先生",
+                icon: "fas fa-compass",
+                color: "purple",
+                intro: "這位施主，我看你印堂發亮，但家宅氣運稍滯。何不種些花草，引生氣入宅，定能轉運！",
+                systemPrompt: "你現在扮演一位精通堪輿的風水先生。你喜歡把植物生長與氣運連結起來解釋，說話帶點玄機。請用第一人稱「貧道」或「本山人」回答。"
+            }
+        };
+
+        window.onload = function() {
+            document.getElementById('main-title').textContent = contentData.metadata.title;
+            document.getElementById('author-name').textContent = contentData.metadata.author;
+            document.getElementById('source-name').textContent = contentData.metadata.source;
+            switchTab('overview');
+
+            if ('speechSynthesis' in window) {
+                 window.speechSynthesis.onvoiceschanged = function() {
+                    window.speechSynthesis.getVoices();
+                };
+            }
+
+            document.addEventListener('click', (e) => {
+                const popup = document.getElementById('note-template');
+                if (!e.target.closest('.interactive-word') && !e.target.closest('.note-popup')) {
+                    closeNote();
+                }
+            });
+        };
+
+        function closeNote() {
+            const popup = document.getElementById('note-template');
+            if(popup) {
+                popup.classList.add('hidden');
+                popup.style.display = ''; 
+            }
+        }
+
+        function switchTab(tabId) {
+            currentTab = tabId;
+            closeNote();
+
+            document.querySelectorAll('.tab-btn').forEach(btn => btn.classList.remove('active'));
+            document.getElementById(`tab-${tabId}`).classList.add('active');
+
+            const container = document.getElementById('content-display');
+            container.style.opacity = '0';
+            
+            setTimeout(() => {
+                switch(tabId) {
+                    case 'overview': renderOverview(container); break;
+                    case 'reading': renderReading(container); break;
+                    case 'deep': renderDeepUnderstanding(container); break;
+                    case 'vocabulary': renderVocabulary(container); break;
+                    case 'analysis': renderAnalysis(container); break;
+                    case 'chat': renderChat(container); break;
+                    case 'quiz': renderQuiz(container); break;
+                    case 'story': 
+                        renderStory(container); 
+                        break;
+                }
+                container.style.opacity = '1';
+            }, 200);
+        }
+
+        function renderOverview(container) {
+            container.innerHTML = `
+                <div class="max-w-3xl mx-auto">
+                    <div class="bg-amber-50 rounded-xl p-6 border-l-8 border-amber-600 mb-8">
+                        <h2 class="text-2xl font-bold text-amber-900 mb-4"><i class="fas fa-scroll mr-2"></i>故事大意</h2>
+                        <p class="text-lg text-gray-700 leading-loose text-justify">${contentData.summary}</p>
+                    </div>
+                    
+                    <div class="flex justify-center">
+                         <div class="bg-white border border-gray-200 rounded-xl p-6 shadow-sm hover:shadow-md transition flex flex-col justify-center items-center text-center max-w-md w-full">
+                            <div class="w-16 h-16 bg-amber-100 rounded-full flex items-center justify-center mb-4">
+                                <i class="fas fa-water text-amber-600 text-2xl"></i>
+                            </div>
+                            <h3 class="font-bold text-gray-800 mb-2">學習重點</h3>
+                            <p class="text-gray-600 text-sm">體悟勞動的樂趣，理解「物我合一」與「環境氣場」的智慧。</p>
+                        </div>
+                    </div>
+                </div>
+            `;
+        }
+
+        function renderReading(container) {
+            let segmentsHtml = contentData.segments.map((seg, idx) => {
+                let displayHtml = seg.original;
+                Object.keys(seg.notes).forEach(key => {
+                    displayHtml = displayHtml.replace(key, `<span class="interactive-word" onclick="showNote('${key}', ${idx}, this, event)">${key}</span>`);
+                });
+
+                let imageSection = `<div class="mt-6 rounded-lg overflow-hidden shadow-lg animate-fade-in"><img src="${seg.imageData}" class="w-full h-auto rounded-lg shadow-md" alt="段落插圖" onerror="this.style.display='none'"></div>`;
+
+                return `
+                    <div class="group mb-12 relative pl-6 border-l-4 border-gray-200 hover:border-amber-500 transition-colors duration-300">
+                        <div class="flex items-center justify-between mb-2">
+                            <span class="text-xs font-bold text-gray-400 uppercase tracking-widest">段落 ${idx + 1}</span>
+                            <div class="flex gap-2">
+                                <button onclick="playAudio('${seg.audioText}')" class="w-8 h-8 rounded-full bg-amber-100 text-amber-700 flex items-center justify-center hover:bg-amber-200 transition" title="朗讀">
+                                    <i class="fas fa-volume-up text-sm"></i>
+                                </button>
+                            </div>
+                        </div>
+                        <div class="relative hover-trans-container cursor-help py-2">
+                            <p class="text-2xl sm:text-3xl font-serif text-gray-800 leading-relaxed relative z-10">${displayHtml}</p>
+                            <div class="hover-translation hidden absolute left-0 top-full mt-2 w-full z-20">
+                                <div class="bg-white/95 backdrop-blur-sm p-4 rounded-lg text-gray-700 text-lg leading-7 border border-amber-200 shadow-xl relative">
+                                    <div class="absolute -top-2 left-8 w-4 h-4 bg-white border-t border-l border-amber-200 transform rotate-45"></div>
+                                    <span class="font-bold text-amber-700 mr-1"><i class="fas fa-language mr-1"></i>語譯：</span> ${seg.translation}
+                                </div>
+                            </div>
+                        </div>
+                        ${imageSection}
+                    </div>
+                `;
+            }).join('');
+
+            container.innerHTML = `
+                <div class="flex flex-col md:flex-row gap-6 mb-8 items-center bg-amber-50 p-4 rounded-xl border border-amber-100">
+                    <div class="flex-grow">
+                        <h3 class="font-bold text-amber-900 text-lg">AI 意境圖解</h3>
+                        <p class="text-sm text-amber-700">體會李漁的閒情雅致 (本地圖片版)</p>
+                    </div>
+                </div>
+                <div class="max-w-3xl mx-auto">
+                    ${segmentsHtml}
+                </div>
+                <div class="text-center mt-12 pb-6 text-gray-400 text-sm space-y-1">
+                    <p><i class="fas fa-mouse-pointer mr-1"></i> 點擊底線文字查看註釋</p>
+                    <p><i class="fas fa-hand-pointer mr-1"></i> 滑鼠移過古文即可查看翻譯</p>
+                </div>
+            `;
+        }
+        
+        function renderDeepUnderstanding(container) {
+            container.innerHTML = `
+                <div class="space-y-12">
+                    <!-- Middle Way Diagram -->
+                    <section>
+                        <h2 class="text-2xl font-bold text-amber-900 mb-4"><i class="fas fa-balance-scale mr-2"></i>灌溉中庸圖：方法論</h2>
+                        <div class="bg-white rounded-xl shadow-lg p-8 border-4 border-amber-200 flex justify-center items-center overflow-hidden" style="min-height: 350px;">
+                             <svg viewBox="0 0 600 300" class="w-full h-full">
+                                <defs>
+                                    <marker id="arrow-deep" markerWidth="10" markerHeight="7" refX="9" refY="3.5" orient="auto">
+                                        <polygon points="0 0, 10 3.5, 0 7" fill="#666" />
+                                    </marker>
+                                </defs>
+                                
+                                <!-- Scale Base -->
+                                <line x1="50" y1="200" x2="550" y2="200" stroke="#666" stroke-width="4" />
+                                <polygon points="300,200 290,220 310,220" fill="#374151" />
+
+                                <!-- Left: Primitive -->
+                                <g transform="translate(100, 150)">
+                                    <circle r="45" fill="#e5e7eb" stroke="#374151" stroke-width="2" />
+                                    <text y="-5" text-anchor="middle" font-weight="bold">抱甕</text>
+                                    <text y="15" text-anchor="middle" font-size="12">太癡/勞累</text>
+                                </g>
+
+                                <!-- Right: Mechanical -->
+                                <g transform="translate(500, 150)">
+                                    <circle r="45" fill="#fee2e2" stroke="#dc2626" stroke-width="2" />
+                                    <text y="-5" text-anchor="middle" font-weight="bold">機械</text>
+                                    <text y="15" text-anchor="middle" font-size="12">太巧/機心</text>
+                                </g>
+
+                                <!-- Center: The Way -->
+                                <g transform="translate(300, 100)">
+                                    <rect x="-60" y="-30" width="120" height="60" rx="10" fill="#fef3c7" stroke="#d97706" stroke-width="3" />
+                                    <text y="-5" text-anchor="middle" font-weight="bold" font-size="16">酌取中道</text>
+                                    <text y="15" text-anchor="middle" font-size="12" fill="#b45309">灌園方</text>
+                                </g>
+
+                                <!-- Result -->
+                                <text x="300" y="250" text-anchor="middle" font-size="14" fill="#059669" font-weight="bold">結果：樂在其中，頤養性情</text>
+                            </svg>
+                        </div>
+                    </section>
+
+                    <!-- Qi Cycle Diagram -->
+                    <section>
+                        <h2 class="text-2xl font-bold text-amber-900 mb-4"><i class="fas fa-recycle mr-2"></i>氣運循環圖：物我感應</h2>
+                        <div class="bg-white rounded-xl shadow-lg p-6 border border-amber-100 flex justify-center overflow-x-auto">
+                            <svg width="600" height="250">
+                                <!-- Human Action -->
+                                <g transform="translate(100, 125)">
+                                    <circle r="45" fill="#dbeafe" stroke="#2563eb" stroke-width="2" />
+                                    <text y="0" text-anchor="middle" font-weight="bold">人</text>
+                                    <text y="20" text-anchor="middle" font-size="12" fill="#1e40af">勤於灌溉</text>
+                                </g>
+                                
+                                <!-- Plant Response -->
+                                <g transform="translate(300, 125)">
+                                    <circle r="45" fill="#dcfce7" stroke="#16a34a" stroke-width="2" />
+                                    <text y="0" text-anchor="middle" font-weight="bold">草木</text>
+                                    <text y="20" text-anchor="middle" font-size="12" fill="#166534">欣欣向榮</text>
+                                </g>
+
+                                <!-- Fortune Result -->
+                                <g transform="translate(500, 125)">
+                                    <circle r="45" fill="#fef3c7" stroke="#d97706" stroke-width="2" />
+                                    <text y="0" text-anchor="middle" font-weight="bold">家運</text>
+                                    <text y="20" text-anchor="middle" font-size="12" fill="#b45309">生財/瑞氣</text>
+                                </g>
+
+                                <!-- Arrows -->
+                                <path d="M145,125 L255,125" stroke="#666" stroke-width="2" marker-end="url(#arrow-deep)" />
+                                <text x="200" y="115" text-anchor="middle" font-size="12">養護/關愛</text>
+
+                                <path d="M345,125 L455,125" stroke="#666" stroke-width="2" marker-end="url(#arrow-deep)" />
+                                <text x="400" y="115" text-anchor="middle" font-size="12">助長祥光</text>
+                                
+                                <!-- Feedback Loop -->
+                                <path d="M500,170 Q300,240 100,170" fill="none" stroke="#d97706" stroke-width="2" stroke-dasharray="5,5" marker-end="url(#arrow-deep)" />
+                                <text x="300" y="220" text-anchor="middle" font-size="12" fill="#d97706">反饋：耳目堪娛，心情愉悅</text>
+                            </svg>
+                        </div>
+                    </section>
+                </div>
+            `;
+        }
+
+        function renderVocabulary(container) {
+            const cardsHtml = contentData.vocabulary.map(item => `
+                <div class="bg-white border border-amber-100 rounded-xl p-5 shadow-sm hover:shadow-md transition duration-200 flex flex-col h-full">
+                    <div class="flex justify-between items-start mb-3">
+                        <h3 class="text-2xl font-bold text-amber-900">${item.word}</h3>
+                    </div>
+                    <div class="text-sm text-gray-500 mb-2 font-mono bg-amber-50 inline-block px-2 py-1 rounded self-start">
+                        ${item.zhuyin} • <span class="text-amber-700 font-semibold">${item.pos}</span>
+                    </div>
+                    <p class="text-gray-700 text-lg leading-relaxed flex-grow">${item.meaning}</p>
+                </div>
+            `).join('');
+
+            container.innerHTML = `
+                <div class="max-w-4xl mx-auto">
+                    <h2 class="text-3xl font-bold text-center mb-8 text-amber-900 font-serif">語詞精解</h2>
+                    <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+                        ${cardsHtml}
+                    </div>
+                </div>
+            `;
+        }
+
+        function renderAnalysis(container) {
+            const rhetoricHtml = contentData.rhetoric.map(r => `
+                <div class="flex items-start mb-4 p-4 bg-white rounded-lg border border-gray-100 shadow-sm">
+                    <div class="flex-shrink-0 mr-4">
+                        <div class="w-8 h-8 bg-amber-100 rounded-full flex items-center justify-center text-amber-600 font-bold">
+                            <i class="fas fa-pen-fancy"></i>
+                        </div>
+                    </div>
+                    <div>
+                        ${marked.parse(r)}
+                    </div>
+                </div>
+            `).join('');
+
+            container.innerHTML = `
+                <div class="max-w-3xl mx-auto space-y-10">
+                    <section>
+                        <h2 class="text-2xl font-bold text-amber-900 mb-4 flex items-center">
+                            <i class="fas fa-book-reader mr-3"></i>全文主旨與寓意
+                        </h2>
+                        <div class="bg-amber-50 p-6 rounded-xl border-l-8 border-amber-600 shadow-sm text-lg text-gray-800 leading-loose">
+                            ${contentData.meaning}
+                        </div>
+                    </section>
+                    <section>
+                        <h2 class="text-2xl font-bold text-amber-900 mb-4 flex items-center">
+                            <i class="fas fa-highlighter mr-3"></i>修辭與寫作技巧
+                        </h2>
+                        <div class="bg-gray-50 p-6 rounded-xl border border-gray-200">
+                            ${rhetoricHtml}
+                        </div>
+                    </section>
+                </div>
+            `;
+        }
+
+        function renderChat(container) {
+            // Simple placeholder for chat in offline mode
+            container.innerHTML = `
+                <div class="flex flex-col items-center justify-center h-[400px] text-center text-gray-500">
+                    <i class="fas fa-robot text-4xl mb-4 text-gray-300"></i>
+                    <p>AI 角色扮演功能僅支援線上模式。</p>
+                    <p class="text-sm mt-2">（本地版不具備連網對話能力）</p>
+                </div>
+            `;
+        }
+
+        function switchPersona(newPersona) {
+            currentPersona = newPersona;
+            chatHistory = []; 
+            renderChat(document.getElementById('content-display'));
+        }
+
+        function renderQuiz(container) {
+            let quizHtml = contentData.quiz.map((q, i) => {
+                const val = ["A","B","C","D"];
+                const isAnswered = userAnswers[i] !== undefined;
+                const userAnswer = userAnswers[i];
+                let feedback = '';
+                let cardClass = "bg-white border border-gray-200";
+                let feedbackClass = "hidden mt-4 p-3 rounded-lg text-lg bg-gray-50"; 
+                
+                if (isAnswered) {
+                    feedbackClass = "mt-4 p-3 rounded-lg text-lg animate-fade-in"; 
+                    if (userAnswer === q.ans) {
+                        feedback = `<strong class="block mb-1"><i class="fas fa-check-circle mr-1"></i>答對了！</strong>${q.exp}`;
+                        cardClass = "bg-white border border-green-500 shadow-sm";
+                        feedbackClass += " bg-green-50 text-green-800";
+                    } else {
+                        const userOption = q.opts.find((opt, idx) => ["A","B","C","D"][idx] === userAnswer);
+                        const correctOption = q.opts.find((opt, idx) => ["A","B","C","D"][idx] === q.ans);
+                        feedback = `
+                            <div class="mb-2">
+                                <span class="block font-bold text-red-600"><i class="fas fa-times-circle mr-1"></i>答錯了</span>
+                                <span class="block text-gray-600">您的答案：${userOption}</span>
+                                <span class="block text-green-600 font-bold">正確答案：${correctOption}</span>
+                            </div>
+                            <div class="pt-2 border-t border-gray-200">
+                                <strong>解析：</strong>${q.exp}
+                            </div>
+                        `;
+                        cardClass = "bg-white border border-red-500 shadow-sm";
+                        feedbackClass += " bg-red-50 text-gray-800";
+                    }
+                }
+
+                return `
+                <div class="${cardClass} rounded-xl p-6 mb-6 shadow-sm transition-all duration-300" id="quiz-card-${i}">
+                    <p class="font-bold text-lg text-gray-800 mb-4"><span class="text-amber-600 mr-2">Q${i+1}.</span>${q.q}</p>
+                    <div class="grid grid-cols-1 md:grid-cols-2 gap-3">
+                        ${q.opts.map((opt, optIdx) => {
+                            const val = ["A","B","C","D"][optIdx];
+                            const isChecked = userAnswer === val ? 'checked' : '';
+                            const isDisabled = isAnswered ? 'disabled' : '';
+                            const labelClass = isAnswered ? 'disabled-label' : 'hover:bg-amber-50 cursor-pointer';
+
+                            return `
+                            <label class="flex items-center p-3 rounded-lg border border-gray-100 transition group ${labelClass}">
+                                <input type="radio" name="q-${i}" value="${val}" class="mr-3 text-amber-600 focus:ring-amber-500" onchange="checkAnswer(${i}, '${val}', '${q.ans}')" ${isChecked} ${isDisabled}>
+                                <span class="text-xl group-hover:text-amber-800">${opt}</span>
+                            </label>
+                            `;
+                        }).join('')}
+                    </div>
+                    <div id="feedback-${i}" class="${feedbackClass}">${feedback}</div>
+                </div>
+            `}).join('');
+            
+            container.innerHTML = `
+                <div class="max-w-3xl mx-auto pb-24">
+                    <h2 class="text-2xl font-bold text-center mb-8 text-gray-700">小試身手 (共20題)</h2>
+                    ${quizHtml}
+                    
+                    <div class="fixed bottom-0 left-0 w-full bg-white border-t border-gray-200 p-4 shadow-lg flex justify-center items-center z-40">
+                         <button onclick="submitQuiz()" class="px-8 py-3 bg-amber-600 hover:bg-amber-700 text-white font-bold rounded-full shadow-lg transition transform hover:scale-105 flex items-center text-lg">
+                            <i class="fas fa-paper-plane mr-2"></i> 交卷並查看成績
+                        </button>
+                    </div>
+                </div>
+            `;
+        }
+
+        // [Tab Story] 抉擇之路 (RPG) - Modified for GitHub Pages
+        const storyNodes = {
+            start: {
+                id: 'start',
+                text: "你是一位剛退休的文人，買下了一塊山邊的土地，準備建造自己的夢想家園。你首先要決定的是...",
+                // Modified for GitHub Pages
+                imageData: "images/rpg_start.jpg",
+                choices: [
+                    { text: "挖一個池塘，旁邊開闢小菜園 (近方塘)", next: "garden" },
+                    { text: "在山頂蓋個涼亭看風景", next: "pavilion" }
+                ]
+            },
+            pavilion: {
+                id: 'pavilion',
+                text: "你蓋了涼亭，風景很美，但每天爬上爬下很累，而且沒有水源，種的花草都枯死了。你覺得生活少了點什麼。",
+                imageData: null, // No image provided for this bad ending
+                choices: [{ text: "重來，務實一點", next: "start" }],
+                isEnding: true
+            },
+            garden: {
+                id: 'garden',
+                text: "你挖了池塘，種了瓜果蔬菜。現在面臨一個問題：該怎麼澆水呢？",
+                imageData: "images/rpg_garden.jpg",
+                choices: [
+                    { text: "堅持親手抱甕提水 (抱甕)", next: "hard_labor" },
+                    { text: "花大錢裝設複雜的水車 (機巧)", next: "machine" },
+                    { text: "準備適當的工具，量力而為 (酌取中道)", next: "balance" }
+                ]
+            },
+            hard_labor: {
+                id: 'hard_labor',
+                text: "【Bad Ending: 勞累過度】你堅持要效法古人抱甕灌園，結果腰酸背痛，臥病在牀，園子也荒廢了。你體會到「畏途」的滋味。",
+                imageData: "images/rpg_hard_labor.jpg",
+                choices: [{ text: "重來", next: "start" }],
+                isEnding: true
+            },
+            machine: {
+                id: 'machine',
+                text: "【Bad Ending: 機心太重】你裝了複雜的機械，雖然省力，但失去了親近自然的樂趣。而且機械常壞，修繕費用高昂，讓你煩惱不已。",
+                imageData: "images/rpg_machine.jpg",
+                choices: [{ text: "重來", next: "start" }],
+                isEnding: true
+            },
+            balance: {
+                id: 'balance',
+                text: "你選用了輕便的瓢杓，每天早晚澆水，既運動了身體，又不至於太累。看著植物一天天長大，你的心情如何？",
+                imageData: "images/rpg_balance.jpg",
+                choices: [
+                    { text: "把它當成例行公事，有點無聊", next: "bored" },
+                    { text: "視草木如親人，關心其生機", next: "empathy" }
+                ]
+            },
+            bored: {
+                id: 'bored',
+                text: "你覺得澆水很枯燥。久而久之，你開始偷懶，植物長得不好，你也沒什麼成就感。",
+                choices: [{ text: "重來", next: "start" }],
+                isEnding: true
+            },
+            empathy: {
+                id: 'empathy',
+                text: "你真心愛護這些植物。園子裡的草木欣欣向榮，彷彿有靈性一般。鄰居路過都說這裡風水好。這時家人也想幫忙...",
+                imageData: "images/rpg_empathy.jpg",
+                choices: [
+                    { text: "自己做就好，不讓他們插手", next: "alone" },
+                    { text: "帶領家人一起勞動 (督率家人)", next: "good_end" }
+                ]
+            },
+            alone: {
+                id: 'alone',
+                text: "你自己做得很好，但家人無法體會你的樂趣，也無法分擔你的辛勞。你的快樂是孤獨的。",
+                imageData: "images/rpg_alone.jpg",
+                choices: [{ text: "重來", next: "start" }],
+                isEnding: true
+            },
+            good_end: {
+                id: 'good_end',
+                text: "【Good Ending: 頤養天年】你帶著家人一起澆水除草，享受天倫之樂。園子生機勃勃，家運也跟著興旺起來。你真正體會到了「灌園之樂」與「頤養性情」的真諦。",
+                imageData: "images/rpg_good_end.jpg",
+                choices: [{ text: "重新體驗", next: "start" }],
+                isEnding: true,
+                win: true
+            }
+        };
+
+        function renderStory(container) {
+            if(!window.currentStoryNode) window.currentStoryNode = 'start';
+            const node = storyNodes[window.currentStoryNode];
+
+            let imageContent;
+            if (node.isLoading) {
+                 imageContent = `<div class="h-auto min-h-[256px] bg-gray-100 flex flex-col items-center justify-center relative overflow-hidden rounded-t-xl border-b border-gray-200"><div class="z-10 text-center animate-pulse"><i class="fas fa-palette text-4xl text-amber-400 mb-3"></i><p class="text-amber-600 font-bold">正在為您繪製場景...</p></div></div>`;
+            } else if (node.imageData) {
+                imageContent = `<div class="w-full overflow-hidden rounded-t-xl"><img src="${node.imageData}" class="w-full h-auto fade-in-image" alt="場景圖"></div>`;
+            } else {
+                 imageContent = `<div class="h-auto min-h-[256px] bg-gray-100 flex flex-col items-center justify-center relative overflow-hidden rounded-t-xl border-b border-gray-200"><div class="z-10 text-center"><i class="fas fa-image text-4xl text-gray-300 mb-3"></i><p class="text-gray-500 text-sm">場景圖準備中...</p></div></div>`;
+            }
+
+            container.innerHTML = `<div class="max-w-2xl mx-auto bg-white rounded-xl shadow-xl overflow-hidden border border-amber-100">${imageContent}<div class="p-8"><div class="flex items-center mb-4 text-amber-800 text-sm font-bold uppercase tracking-widest"><i class="fas fa-scroll mr-2"></i> 抉擇時刻</div><p class="text-xl leading-relaxed text-gray-800 mb-8 font-serif">${node.text}</p>${node.isEnding ? (node.win ? `<div class="text-center mb-6 text-green-600 font-bold text-2xl p-4 bg-green-50 rounded-lg border border-green-200"><i class="fas fa-trophy mr-2"></i>深得其樂！</div>` : `<div class="text-center mb-6 text-red-600 font-bold text-2xl p-4 bg-red-50 rounded-lg border border-red-200"><i class="fas fa-skull-crossbones mr-2"></i>未得要領</div>`) : ''}<div class="grid gap-4">${node.choices.map(c => `<button onclick="nextStoryNode('${c.next}')" class="story-choice w-full py-4 px-6 bg-white hover:bg-amber-50 border-2 border-amber-200 hover:border-amber-400 rounded-xl text-amber-900 font-bold text-lg transition duration-200 flex items-center justify-between group"><span>${c.text}</span><i class="fas fa-chevron-right text-amber-300 group-hover:text-amber-600 transition"></i></button>`).join('')}</div></div></div>`;
+            if(node.win) { try { confetti({ particleCount: 150, spread: 70, origin: { y: 0.6 } }); } catch (e) { console.log("Confetti not loaded"); } }
+        }
+
+        function nextStoryNode(nodeId) {
+            window.currentStoryNode = nodeId;
+            renderStory(document.getElementById('content-display'));
+        }
+        
+        async function preloadStoryImages() {
+            if (hasPreloadedStory) return;
+            hasPreloadedStory = true;
+            await generateStoryImage('start');
+            const allIds = Object.keys(storyNodes).filter(id => id !== 'start');
+            for (const id of allIds) {
+                await new Promise(r => setTimeout(r, 500));
+                generateStoryImage(id).catch(e => console.error(`Background gen failed for ${id}`, e));
+            }
+        }
+
+        async function generateStoryImage(nodeId) {
+            const node = storyNodes[nodeId];
+            if (node.imageData || node.isLoading) return; 
+            
+            if (!node.imgPrompt) {
+                node.imgPrompt = "Traditional Chinese colorful watercolor painting style. A symbolic scene representing gardening joy. Artistic. NO text.";
+            }
+
+            node.isLoading = true;
+            if (window.currentStoryNode === nodeId) { const container = document.getElementById('content-display'); if(container) renderStory(container); }
+            try {
+                const url = `https://generativelanguage.googleapis.com/v1beta/models/imagen-3.0-generate-002:predict?key=${apiKey}`;
+                const response = await fetch(url, { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ instances: [{ prompt: node.imgPrompt }], parameters: { sampleCount: 1 } }) });
+                const data = await response.json();
+                if (data.predictions && data.predictions[0].bytesBase64Encoded) { node.imageData = `data:image/png;base64,${data.predictions[0].bytesBase64Encoded}`; } else { throw new Error("No image data returned"); }
+            } catch (err) { console.error(`Story image failed for ${nodeId}:`, err); } finally { node.isLoading = false; if (window.currentStoryNode === nodeId) { const container = document.getElementById('content-display'); if(container) renderStory(container); } }
+        }
+
+        async function generateAllImages() {
+            if (isGeneratingImage) return;
+            const btn = document.getElementById('btn-gen-all');
+            btn.disabled = true;
+            btn.innerHTML = '<i class="fas fa-spinner fa-spin mr-2"></i>書畫繪製中...';
+            isGeneratingImage = true;
+            contentData.segments.forEach((_, i) => { document.getElementById(`img-placeholder-${i}`)?.classList.remove('hidden'); });
+            try {
+                for (let i = 0; i < contentData.segments.length; i++) {
+                    if (contentData.segments[i].imageData) continue;
+                    const prompt = contentData.segments[i].imagePrompt;
+                    const url = `https://generativelanguage.googleapis.com/v1beta/models/imagen-3.0-generate-002:predict?key=${apiKey}`;
+                    const response = await fetch(url, { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ instances: [{ prompt: prompt }], parameters: { sampleCount: 1 } }) });
+                    const data = await response.json();
+                    if (data.predictions && data.predictions[0].bytesBase64Encoded) {
+                        const b64 = `data:image/png;base64,${data.predictions[0].bytesBase64Encoded}`;
+                        contentData.segments[i].imageData = b64;
+                        const ph = document.getElementById(`img-placeholder-${i}`);
+                        if (ph) { const imgDiv = document.createElement('div'); imgDiv.className = "mt-6 rounded-lg overflow-hidden shadow-lg animate-fade-in"; imgDiv.innerHTML = `<img src="${b64}" class="w-full h-auto rounded-lg shadow-md" alt="段落插圖">`; ph.replaceWith(imgDiv); }
+                    }
+                }
+            } catch (err) { showError("圖片生成過程中遇到了一些問題。"); console.error(err); } finally { isGeneratingImage = false; btn.disabled = false; btn.innerHTML = '<i class="fas fa-check mr-2"></i>繪製完成'; }
+        }
+
+        // Download function
+        async function downloadAllImages() {
+            const zip = new JSZip();
+            let count = 0;
+            const title = contentData.metadata.title || "download";
+            const folder = zip.folder("images");
+
+            contentData.segments.forEach((seg, index) => {
+                if (seg.imageData) {
+                    const base64Data = seg.imageData.replace(/^data:image\/(png|jpg|jpeg);base64,/, "");
+                    folder.file(`reading_segment_${index + 1}.jpg`, base64Data, {base64: true});
+                    count++;
+                }
+            });
+
+            Object.entries(storyNodes).forEach(([nodeId, node]) => {
+                if (node.imageData) {
+                    const base64Data = node.imageData.replace(/^data:image\/(png|jpg|jpeg);base64,/, "");
+                    folder.file(`rpg_${nodeId}.jpg`, base64Data, {base64: true});
+                    count++;
+                }
+            });
+
+            if (count === 0) {
+                showError("沒有可下載的圖片，請先生成圖片。");
+                return;
+            }
+
+            const content = await zip.generateAsync({type: "blob"});
+            saveAs(content, `${title}_images.zip`);
+        }
+
+        function checkAnswer(idx, val, ans) {
+            if (userAnswers[idx] !== undefined) return; 
+
+            userAnswers[idx] = val; 
+            
+            const radios = document.getElementsByName(`q-${idx}`);
+            for (let radio of radios) {
+                radio.disabled = true;
+                radio.parentElement.classList.add('disabled-label');
+            }
+
+            const feedbackEl = document.getElementById(`feedback-${idx}`);
+            const card = document.getElementById(`quiz-card-${idx}`);
+            const qData = contentData.quiz[idx];
+            if (!feedbackEl || !card) return;
+            
+            feedbackEl.className = 'mt-4 p-3 rounded-lg text-lg animate-fade-in';
+            card.classList.remove('border-green-500', 'border-red-500');
+
+            if (val === ans) {
+                feedbackEl.innerHTML = `<strong class="block mb-1"><i class="fas fa-check-circle mr-1"></i>答對了！</strong>${qData.exp}`;
+                feedbackEl.classList.add('bg-green-50', 'text-green-800');
+                card.classList.add('border-green-500');
+            } else {
+                const correctOption = qData.opts.find((opt, i) => ["A","B","C","D"][i] === ans);
+                const userOption = qData.opts.find((opt, i) => ["A","B","C","D"][i] === val);
+                
+                feedbackEl.innerHTML = `
+                    <div class="mb-2">
+                        <span class="block font-bold text-red-600"><i class="fas fa-times-circle mr-1"></i>答錯了</span>
+                        <span class="block text-gray-600">您的答案：${userOption}</span>
+                        <span class="block text-green-600 font-bold">正確答案：${correctOption}</span>
+                    </div>
+                    <div class="pt-2 border-t border-gray-200">
+                        <strong>解析：</strong>${qData.exp}
+                    </div>
+                `;
+                feedbackEl.classList.add('bg-red-50', 'text-gray-800');
+                card.classList.add('border-red-500');
+            }
+            feedbackEl.classList.remove('hidden');
+        }
+
+        function submitQuiz() {
+            const total = contentData.quiz.length;
+            const answered = Object.keys(userAnswers).length;
+            
+            if (answered < total) {
+                showError(`您還有 ${total - answered} 題未完成，請作答完畢後再交卷！`);
+                return;
+            }
+            
+            let correctCount = 0;
+            for (let i = 0; i < total; i++) {
+                if (userAnswers[i] === contentData.quiz[i].ans) {
+                    correctCount++;
+                }
+            }
+            
+            const score = Math.round((correctCount / total) * 100);
+
+            const scoreText = document.getElementById('score-text');
+            scoreText.innerHTML = `您的總分是 <span class="text-amber-600 font-bold text-4xl">${score}</span> 分`;
+            
+            const modal = document.getElementById('score-modal');
+            modal.classList.remove('hidden');
+            
+            try {
+                confetti({
+                    particleCount: 200,
+                    spread: 70,
+                    origin: { y: 0.6 }
+                });
+            } catch(e) {}
+        }
+
+        function closeScoreModal() {
+            const modal = document.getElementById('score-modal');
+            modal.classList.add('hidden');
+        }
+        
+        function showNote(key, segIdx, el, e) {
+            if (e && e.stopPropagation) e.stopPropagation();
+            const popup = document.getElementById('note-template');
+            const content = document.getElementById('note-content');
+            let noteData = null;
+            if (segIdx !== undefined && contentData.segments[segIdx] && contentData.segments[segIdx].notes[key]) { noteData = contentData.segments[segIdx].notes[key]; } else if (allKeywords[key]) { noteData = allKeywords[key]; }
+            if(!noteData) return;
+            content.innerHTML = `<div class="flex items-baseline justify-between border-b border-gray-100 pb-2 mb-2"><h4 class="text-xl font-bold text-amber-800">${key}</h4><span class="text-xs bg-amber-100 text-amber-800 px-2 py-0.5 rounded">${noteData.type || noteData.pos}</span></div><p class="text-sm text-gray-500 mb-1 font-mono">${noteData.zhuyin}</p><p class="text-gray-700 leading-relaxed">${noteData.def || noteData.meaning}</p>`;
+            const rect = el.getBoundingClientRect();
+            const scrollLeft = window.pageXOffset || document.documentElement.scrollLeft;
+            const scrollTop = window.pageYOffset || document.documentElement.scrollTop;
+            let left = rect.left + scrollLeft;
+            let top = rect.bottom + scrollTop + 5; 
+            if (left + 260 > document.body.clientWidth) { left = document.body.clientWidth - 270; }
+            popup.style.left = `${left}px`;
+            popup.style.top = `${top}px`;
+            popup.classList.remove('hidden');
+        }
+
+        function processTextWithNotes(text) {
+            let processedText = marked.parse(text);
+            Object.keys(allKeywords).forEach(key => {
+                const regex = new RegExp(key + "(?![^<]*>)", "g");
+                processedText = processedText.replace(regex, `<span class="interactive-word bg-amber-50 px-1 rounded" onclick="showNote('${key}', undefined, this, event)">${key}</span>`);
+            });
+            return processedText;
+        }
+
+        function playAudio(text) {
+            if (!('speechSynthesis' in window)) { showError("您的瀏覽器不支援語音朗讀功能。"); return; }
+            window.speechSynthesis.cancel();
+            const utterance = new SpeechSynthesisUtterance(text);
+            utterance.lang = 'zh-TW'; 
+            utterance.rate = 0.85; 
+            utterance.pitch = 1.0;
+            const voices = window.speechSynthesis.getVoices();
+            let targetVoice = voices.find(v => (v.lang === 'zh-TW' || v.lang === 'cmn-Hant-TW') && (v.name.includes('Google') || v.name.includes('Hanhan') || v.name.includes('Mei-Jia') || v.name.includes('Yating')));
+            if (!targetVoice) { targetVoice = voices.find(v => v.lang === 'zh-TW' || v.lang === 'cmn-Hant-TW'); }
+            if (!targetVoice) { targetVoice = voices.find(v => v.lang.startsWith('zh')); }
+            if (targetVoice) { utterance.voice = targetVoice; }
+            utterance.onerror = (e) => { console.error("Speech synthesis error:", e); showError("語音播放發生錯誤，可能是瀏覽器限制或網路問題。"); };
+            window.speechSynthesis.speak(utterance);
+        }
+        window.speechSynthesis.onvoiceschanged = function() { window.speechSynthesis.getVoices(); };
+
+        function showError(msg) {
+            const toast = document.getElementById('error-toast');
+            document.getElementById('error-msg').innerText = msg;
+            toast.classList.remove('hidden');
+            requestAnimationFrame(() => { toast.classList.remove('translate-y-10', 'opacity-0'); });
+            setTimeout(() => { toast.classList.add('translate-y-10', 'opacity-0'); setTimeout(() => toast.classList.add('hidden'), 300); }, 4000);
+        }
+
+    </script>
+</body>
+</html>
